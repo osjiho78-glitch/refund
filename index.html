@@ -7,352 +7,113 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- ===== Firebase SDK (compat 버전, 별도 빌드 도구 없이 바로 사용 가능) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <style>
   :root{
-    --paper: #F3EFE7;
-    --paper-deep: #EAE3D5;
-    --line: #D3C9B4;
-    --line-soft: #E2D9C6;
-    --ink: #26344A;
-    --ink-soft: #5A6578;
-    --stamp-red: #A3383B;
-    --stamp-red-deep: #7E2A2C;
-    --stamp-teal: #2E6B67;
-    --stamp-teal-deep: #204B48;
-    --gold: #A9772F;
-    --white: #FFFCF6;
+    --paper: #F3EFE7; --paper-deep: #EAE3D5; --line: #D3C9B4; --line-soft: #E2D9C6;
+    --ink: #26344A; --ink-soft: #5A6578; --stamp-red: #A3383B; --stamp-red-deep: #7E2A2C;
+    --stamp-teal: #2E6B67; --stamp-teal-deep: #204B48; --white: #FFFCF6;
     --shadow: 0 1px 2px rgba(38,52,74,0.08), 0 4px 14px rgba(38,52,74,0.06);
   }
   *{ box-sizing: border-box; }
   body{
-    margin:0;
-    background: var(--paper);
-    background-image:
-      radial-gradient(circle at 100% 0%, rgba(38,52,74,0.04), transparent 40%),
+    margin:0; background: var(--paper);
+    background-image: radial-gradient(circle at 100% 0%, rgba(38,52,74,0.04), transparent 40%),
       repeating-linear-gradient(180deg, transparent, transparent 27px, rgba(211,201,180,0.35) 28px);
-    font-family: 'Noto Sans KR', sans-serif;
-    color: var(--ink);
-    padding: 28px 18px 60px;
+    font-family: 'Noto Sans KR', sans-serif; color: var(--ink); padding: 28px 18px 60px;
   }
   .wrap{ max-width: 1080px; margin: 0 auto; }
-
-  /* header */
-  .masthead{
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    border-bottom: 3px double var(--ink);
-    padding-bottom: 14px;
-    margin-bottom: 22px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .masthead h1{
-    font-family:'Noto Serif KR', serif;
-    font-weight:700;
-    font-size: 30px;
-    letter-spacing: 1px;
-    margin:0;
-  }
-  .masthead .sub{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--ink-soft);
-    letter-spacing: 0.5px;
-  }
-  .head-right{ display:flex; align-items:center; gap:14px; }
-  .today-tag{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--ink-soft);
-    text-align:right;
-  }
-  .settings-btn{
-    background: transparent;
-    color: var(--ink-soft);
-    border: 1px solid var(--line);
-    font-weight:500;
-    font-size:12px;
-    padding: 8px 14px;
-  }
-
-  /* summary strip */
-  .summary{
-    display:grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .stat{
-    background: var(--white);
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    padding: 14px 16px;
-    box-shadow: var(--shadow);
-    position:relative;
-  }
-  .stat::before{
-    content:'';
-    position:absolute; left:0; top:10px; bottom:10px; width:3px;
-    background: var(--stamp-teal);
-    border-radius: 2px;
-  }
-  .stat.total::before{ background: var(--ink); }
-  .stat.card::before{ background: var(--stamp-teal); }
-  .stat.transfer::before{ background: var(--stamp-red); }
-  .stat.count::before{ background: var(--ink-soft); }
-  .stat .label{
-    font-size: 11px;
-    color: var(--ink-soft);
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-  .stat .value{
-    font-family:'IBM Plex Mono', monospace;
-    font-weight: 600;
-    font-size: 19px;
-  }
-
-  /* settings panel */
-  .settings-panel{
-    background: var(--white);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    box-shadow: var(--shadow);
-    padding: 20px 22px;
-    margin-bottom: 26px;
-    display:none;
-  }
+  .masthead{ display:flex; align-items:flex-end; justify-content:space-between; border-bottom: 3px double var(--ink);
+    padding-bottom: 14px; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .masthead h1{ font-family:'Noto Serif KR', serif; font-weight:700; font-size: 30px; letter-spacing: 1px; margin:0; }
+  .masthead .sub{ font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); letter-spacing: 0.5px; }
+  .head-right{ display:flex; align-items:center; gap:10px; }
+  .today-tag{ font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); text-align:right; }
+  .settings-btn, .logout-btn{ background: transparent; color: var(--ink-soft); border: 1px solid var(--line);
+    font-weight:500; font-size:12px; padding: 8px 14px; }
+  .summary{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat{ background: var(--white); border: 1px solid var(--line); border-radius: 3px; padding: 14px 16px;
+    box-shadow: var(--shadow); position:relative; }
+  .stat::before{ content:''; position:absolute; left:0; top:10px; bottom:10px; width:3px; background: var(--stamp-teal); border-radius: 2px; }
+  .stat.total::before{ background: var(--ink); } .stat.card::before{ background: var(--stamp-teal); }
+  .stat.transfer::before{ background: var(--stamp-red); } .stat.count::before{ background: var(--ink-soft); }
+  .stat .label{ font-size: 11px; color: var(--ink-soft); letter-spacing: 0.5px; margin-bottom: 6px; }
+  .stat .value{ font-family:'IBM Plex Mono', monospace; font-weight: 600; font-size: 19px; }
+  .settings-panel{ background: var(--white); border: 1px solid var(--line); border-radius: 4px; box-shadow: var(--shadow);
+    padding: 20px 22px; margin-bottom: 26px; display:none; }
   .settings-panel.open{ display:block; }
-  .settings-panel h2{
-    font-family:'Noto Serif KR', serif;
-    font-size: 15px;
-    margin: 0 0 4px;
-  }
-  .settings-panel .desc{
-    font-size:12px; color: var(--ink-soft); margin: 0 0 16px;
-  }
-  .settings-cols{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 22px;
-  }
-  @media (max-width: 700px){
-    .settings-cols{ grid-template-columns: 1fr; }
-  }
-  .settings-col h3{
-    font-size: 12px;
-    letter-spacing: 0.4px;
-    color: var(--ink-soft);
-    margin: 0 0 10px;
-    text-transform: uppercase;
-  }
-  .tag-list{
-    display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 12px; min-height: 30px;
-  }
-  .tag-chip{
-    display:inline-flex; align-items:center; gap:6px;
-    border: 1.5px solid var(--line);
-    border-radius: 3px;
-    padding: 5px 6px 5px 10px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 12px;
-    background: var(--paper);
-  }
-  .tag-chip button{
-    background: transparent; border: none; color: var(--stamp-red);
-    font-size: 13px; font-weight: 700; padding: 0 3px; line-height:1;
-    cursor:pointer;
-  }
-  .tag-add{ display:flex; gap:8px; }
-  .tag-add input{ flex:1; padding: 8px 10px; font-size:12px; }
+  .settings-panel h2{ font-family:'Noto Serif KR', serif; font-size: 15px; margin: 0 0 4px; }
+  .settings-panel .desc{ font-size:12px; color: var(--ink-soft); margin: 0 0 16px; }
+  .settings-cols{ display:grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 700px){ .settings-cols{ grid-template-columns: 1fr; } }
+  .settings-col h3{ font-size: 12px; letter-spacing: 0.4px; color: var(--ink-soft); margin: 0 0 10px; text-transform: uppercase; }
+  .tag-list{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 12px; min-height: 30px; }
+  .tag-chip{ display:inline-flex; align-items:center; gap:6px; border: 1.5px solid var(--line); border-radius: 3px;
+    padding: 5px 6px 5px 10px; font-family:'IBM Plex Mono', monospace; font-size: 12px; background: var(--paper); }
+  .tag-chip button{ background: transparent; border: none; color: var(--stamp-red); font-size: 13px; font-weight: 700; padding: 0 3px; line-height:1; cursor:pointer; }
+  .tag-add{ display:flex; gap:8px; } .tag-add input{ flex:1; padding: 8px 10px; font-size:12px; }
   .tag-add button{ padding: 8px 14px; font-size:12px; white-space:nowrap; }
   .empty-tag{ font-size:12px; color: var(--ink-soft); }
-
-  /* form panel: 전표 */
-  .slip{
-    background: var(--white);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    box-shadow: var(--shadow);
-    padding: 20px 22px 18px;
-    margin-bottom: 26px;
-    position: relative;
-  }
-  .slip-title{
-    font-family:'Noto Serif KR', serif;
-    font-weight:600;
-    font-size: 15px;
-    margin: 0 0 14px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .slip-title .dot{
-    width:6px;height:6px;border-radius:50%;
-    background: var(--stamp-red);
-    display:inline-block;
-  }
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    align-items:end;
-  }
+  .slip{ background: var(--white); border: 1px solid var(--line); border-radius: 4px; box-shadow: var(--shadow);
+    padding: 20px 22px 18px; margin-bottom: 26px; position: relative; }
+  .slip-title{ font-family:'Noto Serif KR', serif; font-weight:600; font-size: 15px; margin: 0 0 14px; display:flex; align-items:center; gap:8px; }
+  .slip-title .dot{ width:6px;height:6px;border-radius:50%; background: var(--stamp-red); display:inline-block; }
+  .grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items:end; }
   .grid .span2{ grid-column: span 2; }
-  @media (max-width: 900px){
-    .grid{ grid-template-columns: 1fr 1fr; }
-    .grid .span2{ grid-column: span 2; }
-    .summary{ grid-template-columns: 1fr 1fr; }
-  }
-  label{
-    display:block;
-    font-size: 11px;
-    color: var(--ink-soft);
-    margin-bottom: 5px;
-    letter-spacing: 0.3px;
-  }
-  input[type=date], input[type=text], input[type=number], select{
-    width:100%;
-    padding: 9px 10px;
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    background: var(--paper);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    color: var(--ink);
-  }
+  @media (max-width: 900px){ .grid{ grid-template-columns: 1fr 1fr; } .grid .span2{ grid-column: span 2; } .summary{ grid-template-columns: 1fr 1fr; } }
+  label{ display:block; font-size: 11px; color: var(--ink-soft); margin-bottom: 5px; letter-spacing: 0.3px; }
+  input[type=date], input[type=text], input[type=number], input[type=email], input[type=password], select{
+    width:100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper);
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink); }
   input[type=text]#patient{ font-family:'Noto Sans KR', sans-serif; font-size:14px; }
-  input:focus, select:focus{
-    outline: none;
-    border-color: var(--ink);
-    background: var(--white);
-  }
+  input:focus, select:focus{ outline: none; border-color: var(--ink); background: var(--white); }
   .btn-row{ margin-top: 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-  button{
-    font-family:'Noto Sans KR', sans-serif;
-    font-weight: 600;
-    font-size: 13px;
-    padding: 10px 18px;
-    border-radius: 3px;
-    border: 1px solid var(--ink);
-    background: var(--ink);
-    color: var(--white);
-    cursor:pointer;
-    transition: opacity .15s ease;
-  }
-  button:hover{ opacity:0.85; }
-  button.ghost{
-    background: transparent;
-    color: var(--ink-soft);
-    border: 1px solid var(--line);
-    font-weight: 500;
-  }
-  .err{
-    color: var(--stamp-red);
-    font-size: 12px;
-    margin-top: 8px;
-    display:none;
-  }
-
-  /* filter/export bar */
-  .toolbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
+  button{ font-family:'Noto Sans KR', sans-serif; font-weight: 600; font-size: 13px; padding: 10px 18px; border-radius: 3px;
+    border: 1px solid var(--ink); background: var(--ink); color: var(--white); cursor:pointer; transition: opacity .15s ease; }
+  button:hover{ opacity:0.85; } button:disabled{ opacity:0.5; cursor:not-allowed; }
+  button.ghost{ background: transparent; color: var(--ink-soft); border: 1px solid var(--line); font-weight: 500; }
+  .err{ color: var(--stamp-red); font-size: 12px; margin-top: 8px; display:none; }
+  .toolbar{ display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
   .filters{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .filters select, .filters input{
-    width:auto;
-    padding: 7px 9px;
-    font-size: 12px;
-  }
-  .filters label{ display:none; }
-  .export-btn{
-    background: var(--stamp-teal);
-    border-color: var(--stamp-teal-deep);
-  }
-
-  /* table */
-  .ledger{
-    background: var(--white);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    overflow-x: auto;
-    box-shadow: var(--shadow);
-  }
+  .filters select, .filters input{ width:auto; padding: 7px 9px; font-size: 12px; }
+  .export-btn{ background: var(--stamp-teal); border-color: var(--stamp-teal-deep); }
+  .ledger{ background: var(--white); border: 1px solid var(--line); border-radius: 4px; overflow-x: auto; box-shadow: var(--shadow); }
   table{ width:100%; border-collapse: collapse; min-width: 900px; }
-  thead th{
-    text-align:left;
-    font-size: 11px;
-    color: var(--ink-soft);
-    letter-spacing: 0.4px;
-    padding: 10px 14px;
-    border-bottom: 2px solid var(--ink);
-    background: var(--paper-deep);
-    white-space:nowrap;
-  }
-  tbody td{
-    padding: 11px 14px;
-    border-bottom: 1px solid var(--line-soft);
-    font-size: 13.5px;
-    vertical-align: middle;
-  }
-  tbody tr:last-child td{ border-bottom:none; }
-  tbody tr:hover{ background: rgba(38,52,74,0.03); }
+  thead th{ text-align:left; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.4px; padding: 10px 14px;
+    border-bottom: 2px solid var(--ink); background: var(--paper-deep); white-space:nowrap; }
+  tbody td{ padding: 11px 14px; border-bottom: 1px solid var(--line-soft); font-size: 13.5px; vertical-align: middle; }
+  tbody tr:last-child td{ border-bottom:none; } tbody tr:hover{ background: rgba(38,52,74,0.03); }
   td.date, td.amount{ font-family:'IBM Plex Mono', monospace; }
   td.amount{ text-align:right; color: var(--stamp-red-deep); font-weight:600; white-space:nowrap; }
-  td.memo{ color: var(--ink-soft); font-size:12.5px; }
-  td.person{ font-size: 12.5px; color: var(--ink); white-space:nowrap; }
+  td.memo{ color: var(--ink-soft); font-size:12.5px; } td.person{ font-size: 12.5px; color: var(--ink); white-space:nowrap; }
   td.actions{ text-align:right; white-space:nowrap; }
-  td.actions button{
-    padding: 5px 10px;
-    font-size: 11px;
-    font-weight:500;
-    border-radius: 3px;
-  }
+  td.actions button{ padding: 5px 10px; font-size: 11px; font-weight:500; border-radius: 3px; }
   td.actions .edit-btn{ background: transparent; color: var(--ink-soft); border-color: var(--line); margin-right:6px; }
   td.actions .del-btn{ background: transparent; color: var(--stamp-red); border-color: var(--stamp-red); }
-
-  /* stamp badge */
-  .stamp{
-    display:inline-block;
-    font-family:'IBM Plex Mono', monospace;
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 0.5px;
-    padding: 3px 9px;
-    border-radius: 2px;
-    border: 1.5px solid;
-    transform: rotate(-2deg);
-  }
+  .stamp{ display:inline-block; font-family:'IBM Plex Mono', monospace; font-weight: 700; font-size: 11px; letter-spacing: 0.5px;
+    padding: 3px 9px; border-radius: 2px; border: 1.5px solid; transform: rotate(-2deg); }
   .stamp.card{ color: var(--stamp-teal-deep); border-color: var(--stamp-teal); background: rgba(46,107,103,0.07); }
   .stamp.transfer{ color: var(--stamp-red-deep); border-color: var(--stamp-red); background: rgba(163,56,59,0.07); transform: rotate(1.5deg); }
-
   .empty-row td{ text-align:center; padding: 34px; color: var(--ink-soft); font-size: 13px; }
-  .footer-note{
-    text-align:center;
-    color: var(--ink-soft);
-    font-size: 11px;
-    margin-top: 14px;
-    font-family:'IBM Plex Mono', monospace;
-  }
-  .toast{
-    position: fixed; bottom: 20px; left:50%; transform: translateX(-50%);
-    background: var(--ink); color: var(--white);
-    padding: 10px 18px; border-radius: 4px; font-size:13px;
-    box-shadow: var(--shadow);
-    opacity:0; pointer-events:none; transition: opacity .2s ease, transform .2s ease;
-  }
+  .footer-note{ text-align:center; color: var(--ink-soft); font-size: 11px; margin-top: 14px; font-family:'IBM Plex Mono', monospace; }
+  .toast{ position: fixed; bottom: 20px; left:50%; transform: translateX(-50%); background: var(--ink); color: var(--white);
+    padding: 10px 18px; border-radius: 4px; font-size:13px; box-shadow: var(--shadow);
+    opacity:0; pointer-events:none; transition: opacity .2s ease, transform .2s ease; z-index:50; }
   .toast.show{ opacity:1; transform: translateX(-50%) translateY(-4px); }
+
+  #appRoot{ display:block; }
 </style>
 </head>
 <body>
-<div class="wrap">
 
+<!-- ===== 실제 앱 ===== -->
+<div id="appRoot">
+<div class="wrap">
   <div class="masthead">
     <div>
       <h1>환불 장부</h1>
@@ -365,22 +126,10 @@
   </div>
 
   <div class="summary">
-    <div class="stat total">
-      <div class="label">총 환불액</div>
-      <div class="value" id="statTotal">0원</div>
-    </div>
-    <div class="stat count">
-      <div class="label">총 건수</div>
-      <div class="value" id="statCount">0건</div>
-    </div>
-    <div class="stat card">
-      <div class="label">카드환불 합계</div>
-      <div class="value" id="statCard">0원</div>
-    </div>
-    <div class="stat transfer">
-      <div class="label">계좌이체 합계</div>
-      <div class="value" id="statTransfer">0원</div>
-    </div>
+    <div class="stat total"><div class="label">총 환불액</div><div class="value" id="statTotal">0원</div></div>
+    <div class="stat count"><div class="label">총 건수</div><div class="value" id="statCount">0건</div></div>
+    <div class="stat card"><div class="label">카드환불 합계</div><div class="value" id="statCard">0원</div></div>
+    <div class="stat transfer"><div class="label">계좌이체 합계</div><div class="value" id="statTransfer">0원</div></div>
   </div>
 
   <div class="settings-panel" id="settingsPanel">
@@ -390,18 +139,12 @@
       <div class="settings-col">
         <h3>실장 명단</h3>
         <div class="tag-list" id="staffTagList"></div>
-        <div class="tag-add">
-          <input type="text" id="newStaffInput" placeholder="새 실장 이름 입력">
-          <button id="addStaffBtn">추가</button>
-        </div>
+        <div class="tag-add"><input type="text" id="newStaffInput" placeholder="새 실장 이름 입력"><button id="addStaffBtn">추가</button></div>
       </div>
       <div class="settings-col">
         <h3>원장 명단</h3>
         <div class="tag-list" id="doctorTagList"></div>
-        <div class="tag-add">
-          <input type="text" id="newDoctorInput" placeholder="새 원장 이름 입력">
-          <button id="addDoctorBtn">추가</button>
-        </div>
+        <div class="tag-add"><input type="text" id="newDoctorInput" placeholder="새 원장 이름 입력"><button id="addDoctorBtn">추가</button></div>
       </div>
     </div>
   </div>
@@ -409,41 +152,16 @@
   <div class="slip">
     <p class="slip-title"><span class="dot"></span><span id="slipTitleText">환불 등록</span></p>
     <div class="grid">
-      <div>
-        <label for="paymentDate">결제일자</label>
-        <input type="date" id="paymentDate">
+      <div><label for="paymentDate">결제일자</label><input type="date" id="paymentDate"></div>
+      <div><label for="date">환불일자</label><input type="date" id="date"></div>
+      <div class="span2"><label for="patient">환자명</label><input type="text" id="patient" placeholder="예: 홍길동"></div>
+      <div><label for="amount">금액 (원)</label><input type="number" id="amount" placeholder="0" min="0" step="1"></div>
+      <div><label for="method">환불 방법</label>
+        <select id="method"><option value="카드">카드환불</option><option value="이체">계좌이체</option></select>
       </div>
-      <div>
-        <label for="date">환불일자</label>
-        <input type="date" id="date">
-      </div>
-      <div class="span2">
-        <label for="patient">환자명</label>
-        <input type="text" id="patient" placeholder="예: 홍길동">
-      </div>
-      <div>
-        <label for="amount">금액 (원)</label>
-        <input type="number" id="amount" placeholder="0" min="0" step="1">
-      </div>
-      <div>
-        <label for="method">환불 방법</label>
-        <select id="method">
-          <option value="카드">카드환불</option>
-          <option value="이체">계좌이체</option>
-        </select>
-      </div>
-      <div>
-        <label for="staff">담당 실장</label>
-        <select id="staff"></select>
-      </div>
-      <div>
-        <label for="doctor">담당 원장</label>
-        <select id="doctor"></select>
-      </div>
-      <div class="span2">
-        <label for="memo">메모 (선택)</label>
-        <input type="text" id="memo" placeholder="예: 진료 취소">
-      </div>
+      <div><label for="staff">담당 실장</label><select id="staff"></select></div>
+      <div><label for="doctor">담당 원장</label><select id="doctor"></select></div>
+      <div class="span2"><label for="memo">메모 (선택)</label><input type="text" id="memo" placeholder="예: 진료 취소"></div>
     </div>
     <div class="btn-row">
       <button id="submitBtn">등록</button>
@@ -454,17 +172,9 @@
 
   <div class="toolbar">
     <div class="filters">
-      <select id="filterMethod">
-        <option value="all">전체 방법</option>
-        <option value="카드">카드환불만</option>
-        <option value="이체">계좌이체만</option>
-      </select>
-      <select id="filterStaff">
-        <option value="all">전체 실장</option>
-      </select>
-      <select id="filterDoctor">
-        <option value="all">전체 원장</option>
-      </select>
+      <select id="filterMethod"><option value="all">전체 방법</option><option value="카드">카드환불만</option><option value="이체">계좌이체만</option></select>
+      <select id="filterStaff"><option value="all">전체 실장</option></select>
+      <select id="filterDoctor"><option value="all">전체 원장</option></select>
       <input type="month" id="filterMonth">
       <button class="ghost" id="clearFilterBtn">필터 초기화</button>
     </div>
@@ -473,34 +183,39 @@
 
   <div class="ledger">
     <table>
-      <thead>
-        <tr>
-          <th style="width:100px;">결제일자</th>
-          <th style="width:100px;">환불일자</th>
-          <th>환자명</th>
-          <th style="width:120px; text-align:right;">금액</th>
-          <th style="width:100px;">방법</th>
-          <th style="width:100px;">실장</th>
-          <th style="width:100px;">원장</th>
-          <th>메모</th>
-          <th style="width:110px;"></th>
-        </tr>
-      </thead>
-      <tbody id="tbody">
-        <tr class="empty-row"><td colspan="9">불러오는 중…</td></tr>
-      </tbody>
+      <thead><tr>
+        <th style="width:100px;">결제일자</th><th style="width:100px;">환불일자</th><th>환자명</th>
+        <th style="width:120px; text-align:right;">금액</th><th style="width:100px;">방법</th>
+        <th style="width:100px;">실장</th><th style="width:100px;">원장</th><th>메모</th><th style="width:110px;"></th>
+      </tr></thead>
+      <tbody id="tbody"><tr class="empty-row"><td colspan="9">불러오는 중…</td></tr></tbody>
     </table>
   </div>
-
-  <div class="footer-note">데이터는 이 기기의 내 계정에만 저장됩니다 · 다른 사람과 공유되지 않습니다</div>
+  <div class="footer-note">데이터는 Firebase Firestore에 저장되며, 이 주소에 접속하는 모든 사람이 함께 열람·입력할 수 있습니다</div>
+</div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+/* =========================================================================
+   1) 아래 firebaseConfig 값을 Firebase 콘솔에서 복사한 값으로 교체하세요.
+      (프로젝트 설정 > 일반 > 내 앱 > SDK 설정 및 구성 > config)
+   ========================================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyAbzuY3089xG3M30cOKnmS5XaVwZJOAsNY",
+  authDomain: "refund-65805.firebaseapp.com",
+  projectId: "refund-65805",
+  storageBucket: "refund-65805.firebasestorage.app",
+  messagingSenderId: "41641999913",
+  appId: "1:41641999913:web:2731245bc54967cc336638"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 (function(){
-  const ENTRIES_KEY = 'refund_entries';
-  const PEOPLE_KEY = 'refund_staff_doctor_lists';
   const DEFAULT_STAFF = ['실장1','실장2','실장3','실장4','실장5','실장6','실장7'];
   const DEFAULT_DOCTOR = ['원장1','원장2','원장3','원장4','원장5','원장6'];
 
@@ -508,6 +223,8 @@
   let staffList = [];
   let doctorList = [];
   let editingId = null;
+  let unsubEntries = null;
+  let unsubPeople = null;
 
   const $ = (id) => document.getElementById(id);
   const tbody = $('tbody');
@@ -532,142 +249,96 @@
   const staffTagList = $('staffTagList');
   const doctorTagList = $('doctorTagList');
 
-  function todayStr(){
-    const d = new Date();
-    return d.toISOString().slice(0,10);
-  }
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
   $('todayTag').textContent = '오늘 · ' + todayStr();
-  dateInput.value = todayStr();
-  paymentDateInput.value = todayStr();
 
-  function fmtWon(n){
-    return (Number(n)||0).toLocaleString('ko-KR') + '원';
-  }
-
+  function fmtWon(n){ return (Number(n)||0).toLocaleString('ko-KR') + '원'; }
   function showToast(msg){
-    const t = $('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
     setTimeout(()=> t.classList.remove('show'), 1800);
   }
-
-  function uid(){
-    return 'r_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
-  }
-
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  /* ---------- load / save ---------- */
+  /* ---------- Firestore: 실시간 구독 ---------- */
 
-  async function loadEntries(){
-    try{
-      const res = await window.storage.get(ENTRIES_KEY, false);
-      entries = res && res.value ? JSON.parse(res.value) : [];
-    }catch(e){
-      entries = [];
-    }
-  }
+  function startListening(){
+    unsubEntries = db.collection('refund_entries').onSnapshot((snap) => {
+      entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    }, (err) => { console.error(err); showToast('환불 내역을 불러오지 못했습니다.'); });
 
-  async function saveEntries(){
-    try{
-      const result = await window.storage.set(ENTRIES_KEY, JSON.stringify(entries), false);
-      if(!result){ showToast('저장에 실패했습니다. 다시 시도해 주세요.'); }
-    }catch(e){
-      showToast('저장 중 오류가 발생했습니다.');
-    }
-  }
-
-  async function loadPeople(){
-    try{
-      const res = await window.storage.get(PEOPLE_KEY, false);
-      if(res && res.value){
-        const parsed = JSON.parse(res.value);
-        staffList = Array.isArray(parsed.staff) ? parsed.staff : DEFAULT_STAFF.slice();
-        doctorList = Array.isArray(parsed.doctor) ? parsed.doctor : DEFAULT_DOCTOR.slice();
+    unsubPeople = db.collection('meta').doc('people').onSnapshot(async (doc) => {
+      if(doc.exists){
+        const data = doc.data();
+        staffList = Array.isArray(data.staff) ? data.staff : DEFAULT_STAFF.slice();
+        doctorList = Array.isArray(data.doctor) ? data.doctor : DEFAULT_DOCTOR.slice();
       }else{
         staffList = DEFAULT_STAFF.slice();
         doctorList = DEFAULT_DOCTOR.slice();
-        await savePeople();
+        await db.collection('meta').doc('people').set({ staff: staffList, doctor: doctorList });
       }
-    }catch(e){
-      staffList = DEFAULT_STAFF.slice();
-      doctorList = DEFAULT_DOCTOR.slice();
-    }
+      renderPeopleUI();
+    }, (err) => { console.error(err); showToast('담당자 명단을 불러오지 못했습니다.'); });
+  }
+
+  function stopListening(){
+    if(unsubEntries) unsubEntries();
+    if(unsubPeople) unsubPeople();
   }
 
   async function savePeople(){
     try{
-      const result = await window.storage.set(PEOPLE_KEY, JSON.stringify({staff: staffList, doctor: doctorList}), false);
-      if(!result){ showToast('명단 저장에 실패했습니다.'); }
-    }catch(e){
-      showToast('명단 저장 중 오류가 발생했습니다.');
-    }
+      await db.collection('meta').doc('people').set({ staff: staffList, doctor: doctorList });
+    }catch(e){ showToast('명단 저장 중 오류가 발생했습니다.'); }
   }
 
-  /* ---------- people list rendering ---------- */
+  /* ---------- 명단 UI ---------- */
 
   function renderPeopleUI(){
-    // settings chips
     staffTagList.innerHTML = staffList.length
-      ? staffList.map(name => `<span class="tag-chip">${escapeHtml(name)}<button data-list="staff" data-name="${escapeHtml(name)}" title="삭제">×</button></span>`).join('')
+      ? staffList.map(name => `<span class="tag-chip">${escapeHtml(name)}<button data-list="staff" data-name="${escapeHtml(name)}">×</button></span>`).join('')
       : '<span class="empty-tag">등록된 실장이 없습니다.</span>';
     doctorTagList.innerHTML = doctorList.length
-      ? doctorList.map(name => `<span class="tag-chip">${escapeHtml(name)}<button data-list="doctor" data-name="${escapeHtml(name)}" title="삭제">×</button></span>`).join('')
+      ? doctorList.map(name => `<span class="tag-chip">${escapeHtml(name)}<button data-list="doctor" data-name="${escapeHtml(name)}">×</button></span>`).join('')
       : '<span class="empty-tag">등록된 원장이 없습니다.</span>';
-
-    // form selects
     fillSelect(staffInput, staffList, staffInput.value);
     fillSelect(doctorInput, doctorList, doctorInput.value);
-
-    // filter selects
     fillSelect(filterStaff, staffList, filterStaff.value, '전체 실장');
     fillSelect(filterDoctor, doctorList, filterDoctor.value, '전체 원장');
+    render();
   }
 
   function fillSelect(select, list, keepValue, allLabel){
     const isFilter = !!allLabel;
-    const prev = keepValue;
-    select.innerHTML =
-      (isFilter ? `<option value="all">${allLabel}</option>` : '') +
+    select.innerHTML = (isFilter ? `<option value="all">${allLabel}</option>` : '') +
       list.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
-    if(prev && [...select.options].some(o => o.value === prev)){
-      select.value = prev;
-    }else{
-      select.value = isFilter ? 'all' : (list[0] || '');
-    }
+    if(keepValue && [...select.options].some(o => o.value === keepValue)){ select.value = keepValue; }
+    else{ select.value = isFilter ? 'all' : (list[0] || ''); }
   }
 
   async function addPerson(kind){
     const input = kind === 'staff' ? $('newStaffInput') : $('newDoctorInput');
     const name = input.value.trim();
-    if(!name){ return; }
+    if(!name) return;
     const list = kind === 'staff' ? staffList : doctorList;
-    if(list.includes(name)){
-      showToast('이미 등록된 이름입니다.');
-      return;
-    }
+    if(list.includes(name)){ showToast('이미 등록된 이름입니다.'); return; }
     list.push(name);
     input.value = '';
     await savePeople();
-    renderPeopleUI();
     showToast('추가되었습니다.');
   }
 
   async function removePerson(kind, name){
     if(!confirm(`'${name}'을(를) 명단에서 삭제할까요? (기존 환불 내역의 이름은 유지됩니다)`)) return;
-    if(kind === 'staff'){
-      staffList = staffList.filter(n => n !== name);
-    }else{
-      doctorList = doctorList.filter(n => n !== name);
-    }
+    if(kind === 'staff'){ staffList = staffList.filter(n => n !== name); }
+    else{ doctorList = doctorList.filter(n => n !== name); }
     await savePeople();
-    renderPeopleUI();
     showToast('삭제되었습니다.');
   }
 
-  /* ---------- entries ---------- */
+  /* ---------- 환불 내역 ---------- */
 
   function getFiltered(){
     return entries.filter(e => {
@@ -679,12 +350,11 @@
         if(em !== filterMonth.value) return false;
       }
       return true;
-    }).sort((a,b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt - a.createdAt));
+    }).sort((a,b) => (b.date || '').localeCompare(a.date || '') || ((b.createdAt||0) - (a.createdAt||0)));
   }
 
   function render(){
     const list = getFiltered();
-
     const total = entries.reduce((s,e) => s + Number(e.amount||0), 0);
     const card = entries.filter(e=>e.method==='카드').reduce((s,e)=>s+Number(e.amount||0),0);
     const transfer = entries.filter(e=>e.method==='이체').reduce((s,e)=>s+Number(e.amount||0),0);
@@ -697,7 +367,6 @@
       tbody.innerHTML = '<tr class="empty-row"><td colspan="9">등록된 환불 내역이 없습니다. 위 양식에서 첫 항목을 등록해 보세요.</td></tr>';
       return;
     }
-
     tbody.innerHTML = list.map(e => `
       <tr data-id="${e.id}">
         <td class="date">${e.paymentDate || '-'}</td>
@@ -747,22 +416,20 @@
       return;
     }
     errMsg.style.display = 'none';
-
-    if(editingId){
-      const idx = entries.findIndex(e => e.id === editingId);
-      if(idx > -1){
-        entries[idx] = {...entries[idx], paymentDate, date, patient, amount, method, staff, doctor, memo};
-      }
-      showToast('수정되었습니다.');
-    }else{
-      entries.push({ id: uid(), paymentDate, date, patient, amount, method, staff, doctor, memo, createdAt: Date.now() });
-      showToast('등록되었습니다.');
-    }
     submitBtn.disabled = true;
-    await saveEntries();
+    try{
+      if(editingId){
+        await db.collection('refund_entries').doc(editingId).update({ paymentDate, date, patient, amount, method, staff, doctor, memo });
+        showToast('수정되었습니다.');
+      }else{
+        await db.collection('refund_entries').add({ paymentDate, date, patient, amount, method, staff, doctor, memo, createdAt: Date.now() });
+        showToast('등록되었습니다.');
+      }
+      resetForm();
+    }catch(e){
+      showToast('저장 중 오류가 발생했습니다.');
+    }
     submitBtn.disabled = false;
-    resetForm();
-    render();
   }
 
   function handleTableClick(ev){
@@ -771,10 +438,9 @@
     const id = btn.dataset.id;
     if(btn.dataset.action === 'del'){
       if(confirm('이 환불 내역을 삭제할까요?')){
-        entries = entries.filter(e => e.id !== id);
-        saveEntries();
-        render();
-        showToast('삭제되었습니다.');
+        db.collection('refund_entries').doc(id).delete()
+          .then(() => showToast('삭제되었습니다.'))
+          .catch(() => showToast('삭제 중 오류가 발생했습니다.'));
       }
     }else if(btn.dataset.action === 'edit'){
       const e = entries.find(e => e.id === id);
@@ -797,19 +463,12 @@
 
   function handleExport(){
     const list = getFiltered();
-    if(list.length === 0){
-      showToast('내보낼 내역이 없습니다.');
-      return;
-    }
+    if(list.length === 0){ showToast('내보낼 내역이 없습니다.'); return; }
     const rows = list.map(e => ({
-      '담당실장': e.staff || '',
-      '담당원장': e.doctor || '',
-      '환자명': e.patient,
-      '결제일자': e.paymentDate || '',
-      '환불일자': e.date,
+      '담당실장': e.staff || '', '담당원장': e.doctor || '', '환자명': e.patient,
+      '결제일자': e.paymentDate || '', '환불일자': e.date,
       '환불방법': e.method === '카드' ? '카드환불' : '계좌이체',
-      '금액': Number(e.amount),
-      '메모': e.memo || ''
+      '금액': Number(e.amount), '메모': e.memo || ''
     }));
     try{
       const ws = XLSX.utils.json_to_sheet(rows);
@@ -819,9 +478,7 @@
       const label = filterMonth.value ? filterMonth.value : todayStr();
       XLSX.writeFile(wb, `환불내역_${label}.xlsx`);
       showToast('엑셀 파일이 다운로드됩니다.');
-    }catch(e){
-      showToast('엑셀 생성 중 오류가 발생했습니다.');
-    }
+    }catch(e){ showToast('엑셀 생성 중 오류가 발생했습니다.'); }
   }
 
   submitBtn.addEventListener('click', handleSubmit);
@@ -833,41 +490,44 @@
   filterDoctor.addEventListener('change', render);
   filterMonth.addEventListener('change', render);
   $('clearFilterBtn').addEventListener('click', () => {
-    filterMethod.value = 'all';
-    filterStaff.value = 'all';
-    filterDoctor.value = 'all';
-    filterMonth.value = '';
+    filterMethod.value = 'all'; filterStaff.value = 'all'; filterDoctor.value = 'all'; filterMonth.value = '';
     render();
   });
-
-  settingsToggleBtn.addEventListener('click', () => {
-    settingsPanel.classList.toggle('open');
-  });
+  settingsToggleBtn.addEventListener('click', () => settingsPanel.classList.toggle('open'));
   $('addStaffBtn').addEventListener('click', () => addPerson('staff'));
   $('addDoctorBtn').addEventListener('click', () => addPerson('doctor'));
   $('newStaffInput').addEventListener('keydown', (ev) => { if(ev.key === 'Enter') addPerson('staff'); });
   $('newDoctorInput').addEventListener('keydown', (ev) => { if(ev.key === 'Enter') addPerson('doctor'); });
-  staffTagList.addEventListener('click', (ev) => {
-    const btn = ev.target.closest('button[data-list]');
-    if(!btn) return;
-    removePerson(btn.dataset.list, btn.dataset.name);
-  });
-  doctorTagList.addEventListener('click', (ev) => {
-    const btn = ev.target.closest('button[data-list]');
-    if(!btn) return;
-    removePerson(btn.dataset.list, btn.dataset.name);
-  });
+  staffTagList.addEventListener('click', (ev) => { const b = ev.target.closest('button[data-list]'); if(b) removePerson(b.dataset.list, b.dataset.name); });
+  doctorTagList.addEventListener('click', (ev) => { const b = ev.target.closest('button[data-list]'); if(b) removePerson(b.dataset.list, b.dataset.name); });
 
-  async function init(){
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">불러오는 중…</td></tr>';
-    await Promise.all([loadEntries(), loadPeople()]);
-    renderPeopleUI();
-    resetForm();
-    render();
-  }
-
-  init();
+  window.__refundApp = { startListening, stopListening, resetForm };
 })();
+
+/* ---------- 자동 연결 (로그인 화면 없이 익명 인증으로 접속) ---------- */
+const appRoot = document.getElementById('appRoot');
+
+auth.onAuthStateChanged((user) => {
+  if(user){
+    appRoot.style.display = 'block';
+    window.__refundApp.resetForm();
+    window.__refundApp.startListening();
+  }else{
+    window.__refundApp.stopListening();
+    auth.signInAnonymously().catch((err) => {
+      console.error(err);
+      showToastFallback();
+    });
+  }
+});
+
+function showToastFallback(){
+  const t = document.getElementById('toast');
+  if(!t) return;
+  t.textContent = '연결에 실패했습니다. 인터넷 연결을 확인해 주세요.';
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2500);
+}
 </script>
 </body>
 </html>
