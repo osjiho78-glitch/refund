@@ -155,7 +155,7 @@
       <div><label for="paymentDate">결제일자</label><input type="date" id="paymentDate"></div>
       <div><label for="date">환불일자</label><input type="date" id="date"></div>
       <div class="span2"><label for="patient">환자명</label><input type="text" id="patient" placeholder="예: 홍길동"></div>
-      <div><label for="amount">금액 (원)</label><input type="number" id="amount" placeholder="0" min="0" step="1"></div>
+      <div><label for="amount">금액 (원)</label><input type="text" inputmode="numeric" id="amount" placeholder="0"></div>
       <div><label for="method">환불 방법</label>
         <select id="method"><option value="카드">카드환불</option><option value="이체">계좌이체</option></select>
       </div>
@@ -253,6 +253,11 @@ const db = firebase.firestore();
   $('todayTag').textContent = '오늘 · ' + todayStr();
 
   function fmtWon(n){ return (Number(n)||0).toLocaleString('ko-KR') + '원'; }
+  function parseAmount(v){ return Number(String(v).replace(/[^\d]/g,'')) || 0; }
+  amountInput.addEventListener('input', () => {
+    const raw = amountInput.value.replace(/[^\d]/g,'');
+    amountInput.value = raw ? Number(raw).toLocaleString('ko-KR') : '';
+  });
   function showToast(msg){
     const t = $('toast'); t.textContent = msg; t.classList.add('show');
     setTimeout(()=> t.classList.remove('show'), 1800);
@@ -405,7 +410,7 @@ const db = firebase.firestore();
     const paymentDate = paymentDateInput.value;
     const date = dateInput.value;
     const patient = patientInput.value.trim();
-    const amount = Number(amountInput.value);
+    const amount = parseAmount(amountInput.value);
     const method = methodInput.value;
     const staff = staffInput.value;
     const doctor = doctorInput.value;
@@ -448,7 +453,7 @@ const db = firebase.firestore();
       paymentDateInput.value = e.paymentDate || '';
       dateInput.value = e.date;
       patientInput.value = e.patient;
-      amountInput.value = e.amount;
+      amountInput.value = Number(e.amount).toLocaleString('ko-KR');
       methodInput.value = e.method;
       staffInput.value = e.staff || staffList[0] || '';
       doctorInput.value = e.doctor || doctorList[0] || '';
